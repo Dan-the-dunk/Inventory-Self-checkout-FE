@@ -10,6 +10,7 @@ const LoginForm = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
+    localStorage.clear(); // Clear any existing token
     const handleLogin = async () => {
         try {
             const response = await axios.post('http://localhost:5000/login', { username, password });
