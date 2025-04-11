@@ -13,7 +13,7 @@ export default function StatisticsForm() {
 
     const fetchStatistics = async () => {
         try {
-            const res = await axios.get(`http://localhost:5000/statistics?timeframe=${timeframe}`);
+            const res = await axios.get(`http://localhost:5000/api/statistics?timeframe=${timeframe}`);
             setData(res.data.map(entry => ({ period: entry.period.substring(0, 10), total: entry.total_items })));
         } catch (error) {
             console.error("Error fetching statistics:", error);

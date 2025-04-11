@@ -21,7 +21,7 @@ const RegisterForm = () => {
         try {
             const token = localStorage.getItem('token'); // Admin's auth token
             const response = await axios.post(
-                'http://localhost:5000/users/register',
+                'http://localhost:5000/users/auth/register',
                 {
                     name,
                     username,

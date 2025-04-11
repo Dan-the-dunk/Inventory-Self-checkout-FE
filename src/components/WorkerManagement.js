@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Button,
@@ -54,16 +55,6 @@ const deleteWorker = async (workerId) => {
 };
 // --- End Placeholder API functions ---
 
-
-// --- Placeholder Auth Check ---
-// Replace this with your actual role checking logic
-const useUserRole = () => {
-    // Example: Fetch role from context or auth state
-    // For demo, assuming 'admin' role. Replace with 'manager', 'employee', etc.
-    return 'admin';
-};
-// --- End Placeholder Auth Check ---
-
 function WorkerManagement() {
     const [workers, setWorkers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -72,33 +63,54 @@ function WorkerManagement() {
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [canManageWorkers, setCanManageWorkers] = useState(false);
 
-    const currentUserRole = useUserRole(); // Get current user's role
-
-    // Check if user has permission
-    const canManageWorkers = currentUserRole === 'admin' || currentUserRole === 'manager';
+    const navigate = useNavigate();
 
     useEffect(() => {
-        if (!canManageWorkers) {
-            setError("You don't have permission to access this page.");
+        const token = localStorage.getItem('token');
+        const role = localStorage.getItem('role');
+
+        if (!token) {
+            navigate('/');
+            return;
+        }
+
+        const hasPermission = role === 'admin' || role === 'manager';
+        setCanManageWorkers(hasPermission);
+
+        if (!hasPermission) {
+            setError("You don't have permission to view this page.");
             setLoading(false);
             return;
         }
 
+        let isMounted = true;
         setLoading(true);
         fetchWorkers()
             .then(data => {
-                setWorkers(data);
-                setError(null);
+                if (isMounted) {
+                    setWorkers(data);
+                    setError(null);
+                }
             })
             .catch(err => {
-                console.error("Failed to fetch workers:", err);
-                setError("Failed to load worker data.");
+                if (isMounted) {
+                    console.error("Failed to fetch workers:", err);
+                    setError("Failed to load worker data.");
+                }
             })
             .finally(() => {
-                setLoading(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             });
-    }, [canManageWorkers]); // Re-run if role changes (though unlikely in SPA context usually)
+        
+        return () => {
+            isMounted = false;
+        };
+
+    }, [navigate]);
 
     // --- Modal Handlers ---
     const handleViewOpen = (worker) => {
@@ -175,18 +187,12 @@ function WorkerManagement() {
 
     // --- Render Logic ---
     if (loading) {
-        return <Container><CircularProgress /></Container>;
+        return <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><CircularProgress /></Container>;
     }
 
     if (error) {
-        return <Container><Typography color="error">{error}</Typography></Container>;
+        return <Container><Typography color="error" sx={{ mt: 4, textAlign: 'center' }}>{error}</Typography></Container>;
     }
-
-     // Render message if user lacks permissions (redundant if routing handles this, but good fallback)
-    if (!canManageWorkers) {
-         return <Container><Typography color="error">Access Denied.</Typography></Container>;
-    }
-
 
     return (
         <Container maxWidth="lg">

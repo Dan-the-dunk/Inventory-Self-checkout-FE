@@ -13,7 +13,7 @@ const LoginForm = () => {
     localStorage.clear(); // Clear any existing token
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://localhost:5000/login', { username, password });
+            const response = await axios.post('http://localhost:5000/auth/login', { username, password });
     
             console.log("Login Response:", response.data); // Debugging log
     

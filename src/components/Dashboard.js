@@ -1,26 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// Remove MUI Button import if no longer used elsewhere in the file
-// import Button from '@mui/material/Button';
+import Button from '@mui/material/Button';
 
 const Dashboard = () => {
     console.log("User role: ", localStorage.getItem('role'));
 
-    // Update state to track if user can manage workers
-    const [canManageWorkers, setCanManageWorkers] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token'); 
         const role = localStorage.getItem('role');
+
 
         console.log("Token: ", token);
         console.log("Role: ", role);
         if (!token) {
             navigate('/'); // Redirect to login if no token
         } else {
-            // Set state based on role (admin or manager)
-            setCanManageWorkers(role === 'admin' || role === 'manager');
+            setIsAdmin(role === 'admin');
         }
     }, [navigate]);
 
@@ -41,8 +39,7 @@ const Dashboard = () => {
                 >
                     Logout
                 </button>
-                {/* Use canManageWorkers for Create Account button visibility if admins can manage workers */}
-                {canManageWorkers && localStorage.getItem('role') === 'admin' && ( // Assuming only admins create accounts
+                {isAdmin && (
                     <button
                         className="bg-green-500 text-white p-2 rounded hover:bg-green-600"
                         onClick={() => navigate('/register')}
@@ -66,11 +63,11 @@ const Dashboard = () => {
                 </button>
 
                 <button
-                        className="bg-purple-500 text-white p-2 mt-4 ml-4 rounded hover:bg-purple-600" // Added ml-4 for spacing
-                        onClick={goToWorkerManagement}
-                    >
-                        Worker Management
-                    </button>
+                    className="bg-purple-500 text-white p-2 mt-4 rounded hover:bg-blue-600"
+                    onClick={() => goToWorkerManagement()}
+                >
+                    Worker Management
+                </button>
 
                 {/* Camera Feed Grid */}
                 <div className="grid grid-cols-4 grid-rows-4 gap-2 mt-6">
